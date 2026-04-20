@@ -3,6 +3,9 @@
 *build/
 .idea/
 .vs/
+tests/tests_data/tmp/
+tests/tests_data/tmp_gtest/
+tests/tests_data/tmp_analysis/
 
 # Files
 CMakeUserPresets.json

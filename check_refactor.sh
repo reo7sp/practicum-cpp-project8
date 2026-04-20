@@ -10,6 +10,23 @@ REF_FILES=("$TEST_DATA_FLDR/test1_ref.cpp" "$TEST_DATA_FLDR/test2_ref.cpp" "$TES
 
 # Путь к утилите студента
 TOOL="./build/refactor_tool"
+TOOL_ARGS=(--driver-mode=g++ -xc++ -std=c++17)
+
+if [ "$(uname)" = "Darwin" ]; then
+    MAC_SDK_PATH="$(xcrun --show-sdk-path 2>/dev/null)"
+    MAC_CPP_HEADERS="$MAC_SDK_PATH/usr/include/c++/v1"
+    MAC_CLANG_RESOURCE_DIR="$(clang++ -print-resource-dir 2>/dev/null)"
+
+    if [ -n "$MAC_SDK_PATH" ] && [ -d "$MAC_SDK_PATH" ]; then
+        TOOL_ARGS+=(-isysroot "$MAC_SDK_PATH")
+    fi
+    if [ -d "$MAC_CPP_HEADERS" ]; then
+        TOOL_ARGS+=(-I "$MAC_CPP_HEADERS")
+    fi
+    if [ -n "$MAC_CLANG_RESOURCE_DIR" ] && [ -d "$MAC_CLANG_RESOURCE_DIR" ]; then
+        TOOL_ARGS+=(-resource-dir "$MAC_CLANG_RESOURCE_DIR")
+    fi
+fi
 
 # Массивы для хранения результатов
 declare -a TEST_RESULTS
@@ -27,7 +44,7 @@ if [ ! -d "$TEST_DATA_FLDR" ]; then
     exit 1
 fi
 
-mkdir "$TMP_FLDR"
+mkdir -p "$TMP_FLDR"
 for i in "${!TEST_FILES[@]}"; do
     TEST_FILE="$TEST_DATA_FLDR/${TEST_FILES[$i]}"
     REF_FILE="${REF_FILES[$i]}"
@@ -37,7 +54,7 @@ for i in "${!TEST_FILES[@]}"; do
     cp "$TEST_FILE" "$TMP_FILE"
     
     # # Запускаем инструмент
-    $TOOL "$TMP_FILE" --
+    $TOOL "$TMP_FILE" -- "${TOOL_ARGS[@]}"
         
     # Проверяем, успешно ли выполнился инструмент
     if [ $? -ne 0 ]; then
