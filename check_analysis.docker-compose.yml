@@ -1,0 +1,15 @@
+services:
+  check_analysis:
+    build:
+      context: .
+      dockerfile: check_analysis.Dockerfile
+    working_dir: /x
+    volumes:
+      - .:/x
+    command: ["sleep", "infinity"]
+    cap_add:
+      - PERFMON
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - seccomp=unconfined
